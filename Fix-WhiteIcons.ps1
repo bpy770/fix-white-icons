@@ -229,12 +229,12 @@ function Write-Log {
 # P/Invoke layer: read and write the mandatory label ACE in the SACL
 # ---------------------------------------------------------------------------
 
-if (-not ('DshWhiteIcon.NativeSecurity' -as [type])) {
+if (-not ('WhiteIconRepair.NativeSecurity' -as [type])) {
     $nativeSource = @'
 using System;
 using System.Runtime.InteropServices;
 
-namespace DshWhiteIcon
+namespace WhiteIconRepair
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct ACL_SIZE_INFORMATION
@@ -379,9 +379,9 @@ function Get-MandatoryLabel {
     $labels      = New-Object System.Collections.ArrayList
 
     try {
-        $rc = [DshWhiteIcon.NativeSecurity]::GetNamedSecurityInfo(
+        $rc = [WhiteIconRepair.NativeSecurity]::GetNamedSecurityInfo(
             $LiteralPath, 1,   # SE_FILE_OBJECT
-            [DshWhiteIcon.NativeSecurity]::LABEL_SECURITY_INFORMATION,
+            [WhiteIconRepair.NativeSecurity]::LABEL_SECURITY_INFORMATION,
             [ref]$ownerPtr, [ref]$groupPtr, [ref]$daclPtr, [ref]$sacl, [ref]$sd)
 
         if ($rc -ne 0) {
@@ -399,22 +399,22 @@ function Get-MandatoryLabel {
             }
         }
 
-        $sizeInfo = New-Object DshWhiteIcon.ACL_SIZE_INFORMATION
-        if (-not [DshWhiteIcon.NativeSecurity]::GetAclInformation(
+        $sizeInfo = New-Object WhiteIconRepair.ACL_SIZE_INFORMATION
+        if (-not [WhiteIconRepair.NativeSecurity]::GetAclInformation(
                 $sacl, [ref]$sizeInfo, [uint32][Runtime.InteropServices.Marshal]::SizeOf($sizeInfo), 2)) {   # AclSizeInformation
             throw "GetAclInformation failed with Win32 error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())."
         }
 
         for ($i = 0; $i -lt $sizeInfo.AceCount; $i++) {
             $acePtr = [IntPtr]::Zero
-            if (-not [DshWhiteIcon.NativeSecurity]::GetAce($sacl, [uint32]$i, [ref]$acePtr)) { continue }
+            if (-not [WhiteIconRepair.NativeSecurity]::GetAce($sacl, [uint32]$i, [ref]$acePtr)) { continue }
             if ($acePtr -eq [IntPtr]::Zero) { continue }
 
             # ACE_HEADER: AceType (1 byte), AceFlags (1 byte), AceSize (2 bytes)
             $aceType  = [Runtime.InteropServices.Marshal]::ReadByte($acePtr, 0)
             $aceFlags = [Runtime.InteropServices.Marshal]::ReadByte($acePtr, 1)
 
-            if ($aceType -ne [DshWhiteIcon.NativeSecurity]::SYSTEM_MANDATORY_LABEL_ACE_TYPE) { continue }
+            if ($aceType -ne [WhiteIconRepair.NativeSecurity]::SYSTEM_MANDATORY_LABEL_ACE_TYPE) { continue }
 
             # SYSTEM_MANDATORY_LABEL_ACE: header(4) + Mask(4) + Sid starts at 8
             $mask    = [Runtime.InteropServices.Marshal]::ReadInt32($acePtr, 4)
@@ -451,7 +451,7 @@ function Get-MandatoryLabel {
         }
     }
     finally {
-        if ($sd -ne [IntPtr]::Zero) { [void][DshWhiteIcon.NativeSecurity]::LocalFree($sd) }
+        if ($sd -ne [IntPtr]::Zero) { [void][WhiteIconRepair.NativeSecurity]::LocalFree($sd) }
     }
 }
 
@@ -488,21 +488,21 @@ function Set-MandatoryLabel {
     # ACL: header (8 bytes) + one mandatory label ACE (4 header + 4 mask + 16 SID)
     $aclBytes = New-Object byte[] 32
 
-    if (-not [DshWhiteIcon.NativeSecurity]::InitializeAcl($aclBytes, [uint32]$aclBytes.Length, 2)) {   # ACL_REVISION
+    if (-not [WhiteIconRepair.NativeSecurity]::InitializeAcl($aclBytes, [uint32]$aclBytes.Length, 2)) {   # ACL_REVISION
         throw "InitializeAcl failed with Win32 error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())."
     }
 
     $policy = [uint32]$script:SYSTEM_MANDATORY_LABEL_NO_WRITE_UP
-    if (-not [DshWhiteIcon.NativeSecurity]::AddMandatoryAce(
+    if (-not [WhiteIconRepair.NativeSecurity]::AddMandatoryAce(
             $aclBytes, 2, [uint32]$script:AceFlagsObjectAndContainerInherit, $policy, $sidBytes)) {
         throw "AddMandatoryAce failed with Win32 error $([Runtime.InteropServices.Marshal]::GetLastWin32Error())."
     }
 
     $handle = [Runtime.InteropServices.GCHandle]::Alloc($aclBytes, [Runtime.InteropServices.GCHandleType]::Pinned)
     try {
-        $rc = [DshWhiteIcon.NativeSecurity]::SetNamedSecurityInfo(
+        $rc = [WhiteIconRepair.NativeSecurity]::SetNamedSecurityInfo(
             $LiteralPath, 1,   # SE_FILE_OBJECT
-            [DshWhiteIcon.NativeSecurity]::LABEL_SECURITY_INFORMATION,
+            [WhiteIconRepair.NativeSecurity]::LABEL_SECURITY_INFORMATION,
             [IntPtr]::Zero, [IntPtr]::Zero, [IntPtr]::Zero, $handle.AddrOfPinnedObject())
 
         if ($rc -ne 0) {
