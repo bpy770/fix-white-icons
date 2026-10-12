@@ -52,6 +52,7 @@ set "TARGET=%USERPROFILE%\Desktop"
 set "CHECKONLY="
 set "NORESTART="
 set "ALLOWFALLBACK="
+set "NOPAUSE="
 set "PSEXE=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 set "PS_EXIT=9"
 
@@ -83,8 +84,18 @@ if /i "%~1"=="-AllowIcaclsFallback" (
     shift
     goto parse
 )
+  if /i "%~1"=="-NoPause" (
+      set "NOPAUSE=1"
+      shift
+      goto parse
+  )
+  if /i "%~1"=="/NoPause" (
+      set "NOPAUSE=1"
+      shift
+      goto parse
+  )
 echo Unknown argument: %*
-echo Available: -CheckOnly  -NoRestart  -AllowIcaclsFallback
+echo Available: -CheckOnly  -NoRestart  -AllowIcaclsFallback  -NoPause
 call :hold
 exit /b 1
 :parsed
@@ -137,8 +148,8 @@ if "%PS_EXIT%"=="2" goto ps_low
 goto ps_fail
 
 :ps_ok
-echo [2/3] Result: the label is healthy - nothing was changed.
-call :write_log "OK       label is not Low; no change made"
+echo [2/3] Result: the label is healthy now (Medium or higher).
+call :write_log "OK       label is not Low after the run"
 goto after_repair
 
 :ps_low
@@ -192,7 +203,7 @@ goto after_repair
 
 :fb_ok
 echo [2/3] Result: the label is healthy (not Low) - nothing was changed.
-call :write_log "OK       label is not Low; no change made"
+call :write_log "OK       label is not Low after the run"
 set "PS_EXIT=0"
 goto after_repair
 
@@ -253,12 +264,11 @@ rem PowerShell script writes its own timestamped entries, so nothing is lost.
 exit /b 0
 
 :hold
-rem Keep the window open when a person can read it (double-click), and return
-rem immediately when the script was started by another command, so an automated
-rem run never blocks on pause. %CMDCMDLINE% is tested directly: storing it in a
-rem variable first would embed its own quote characters and break the IF parse.
-echo %CMDCMDLINE% | findstr /i /c:"/c" /c:"-c" >nul 2>&1
-if not errorlevel 1 exit /b 0
+rem Keep the window open so the person who double-clicked can read the result.
+rem Automation passes -NoPause to return immediately. The wait is explicit now:
+rem Explorer also starts .bat files with cmd /c, so guessing from %CMDCMDLINE%
+rem (the previous approach) closed the window on a real double-click.
+if defined NOPAUSE exit /b 0
 echo.
 pause
 exit /b 0
