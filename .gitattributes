@@ -1,0 +1,25 @@
+# Line endings
+#
+# fix-white-icons.bat MUST be checked out with CRLF: cmd.exe's parser needs CRLF
+# to resolve labels, and a copy checked out with LF-only endings fails at run
+# time with "The system cannot find the batch label specified". Pinning it here
+# makes that reliable no matter which platform the repository is cloned on.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Windows PowerShell scripts are conventionally CRLF as well.
+*.ps1 text eol=crlf
+
+# Everything else is normalised to LF in the repository.
+*.md   text
+*.txt  text
+*.json text
+*.yml  text
+*.yaml text
+
+# Binary assets (screenshots for the README, for example) are never converted.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary

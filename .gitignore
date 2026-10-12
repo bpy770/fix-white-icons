@@ -1,0 +1,24 @@
+# 运行后由工具生成的日志，不纳入版本控制
+fix-log.txt
+
+# 测试过程产生的临时文件
+*.log
+.test-*
+.bat.out.txt
+.bat.err.txt
+
+# Windows 系统文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# 编辑器与 IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# PowerShell
+*.ps1xml
