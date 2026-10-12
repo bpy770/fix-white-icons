@@ -242,27 +242,25 @@ Windows 安全 API 用不同的访问权区分这两者：
 * 作者不对因使用本工具而产生的任何数据丢失、系统异常或其它损害承担责任。
 * 本工具只针对「桌面目录被打上 Low 完整性标签」这一种成因。如果你的白图标问题另有原因（缓存损坏、目标程序缺失等），本工具不会生效，也不会造成损害。
 
-## 发布步骤（维护者）
+## 开发与反馈
 
-仓库已经在本地初始化并完成首次提交。要发布到 GitHub，只需：
+- 遇到误判/漏判，或想补充其他病因的检测（图标缓存损坏、目标程序缺失等），欢迎提 [Issue](https://github.com/bpy770/fix-white-icons/issues) 或 Pull Request。
+- 改动后建议先跑一次**干跑自检**（只读、不修改任何东西）：
 
-```bash
-# 1. 在 GitHub 上新建一个空仓库（不要勾选初始化 README），然后：
-git remote add origin https://github.com/bpy770/fix-white-icons.git
-
-# 2. 推送（默认分支为 main）：
-git push -u origin main
+```powershell
+pwsh -File .\Fix-WhiteIcons.ps1 -CheckOnly -StatusOnly
 ```
 
-如果希望提交时使用你自己的身份（首次提交使用的是占位符）：
+- 提交信息建议遵循 [Conventional Commits](https://www.conventionalcommits.org/zh-hans/)。
+
+## 发布新版本（维护者）
 
 ```bash
-git config user.name  "你的名字"
-git config user.email "你的邮箱"
-git commit --amend --reset-author --no-edit
-git push -u origin main
+git tag -a v1.0.1 -m "v1.0.1"
+git push --tags
 ```
 
+随后在 GitHub 的 Releases 页面写说明，并把 `fix-white-icons.bat` 与 `Fix-WhiteIcons.ps1` 作为附件上传，方便他人直接下载。
 ## 许可证
 
 [MIT](LICENSE)
