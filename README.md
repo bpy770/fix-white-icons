@@ -114,6 +114,7 @@ icacls "%USERPROFILE%\Desktop"
 fix-white-icons.bat                 修复，然后重启资源管理器
 fix-white-icons.bat -CheckOnly      只检测、只报告，不修改任何东西
 fix-white-icons.bat -NoRestart      修复，但不重启资源管理器
+fix-white-icons.bat -NoPause       运行结束立即返回，不等按键（供自动化调用）
 ```
 
 ### 方式三：直接用 PowerShell 脚本（参数最全）

@@ -5,6 +5,18 @@
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 版本号遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.1] - 2026-10-12
+
+### 修复
+
+- `fix-white-icons.bat`：**双击后窗口不再瞬间关闭**。原实现靠 `%CMDCMDLINE%` 猜测调用方式，但 Explorer 同样用 `cmd /c` 启动批处理，导致双击时也跳过了等待，用户看不到任何结果。现在改为**默认等待按键**，自动化场景用新增的 `-NoPause` 显式跳过。
+
+- `fix-white-icons.bat`：修复成功时不再误报「未做任何修改」。PowerShell 脚本修复成功同样返回 0，旧措辞会把修复当成「本来就正常」；现统一表述为「标签现在是正常的」。
+
+### 新增
+
+- `-NoPause` / `/NoPause` 开关：供脚本、计划任务、CI 等自动化调用，运行结束立即返回。
+
 ## [1.0.0] - 2026-10-12
 
 首个公开版本。
