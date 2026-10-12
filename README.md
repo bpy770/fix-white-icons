@@ -261,6 +261,7 @@ git push --tags
 ```
 
 随后在 GitHub 的 Releases 页面写说明，并把 `fix-white-icons.bat` 与 `Fix-WhiteIcons.ps1` 作为附件上传，方便他人直接下载。
+
 ## 许可证
 
 [MIT](LICENSE)
